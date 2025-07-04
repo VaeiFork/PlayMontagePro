@@ -8,9 +8,11 @@
 > <br>TODO
 > <br>And its **FREE!**
 
-> [!NOTE]
+> [!CAUTION]
 > Did you know? Anim Notifies are not guaranteed to trigger
-> <br><br>Have you heard the common phrase "Animation should not affect gameplay"?
+
+> [!NOTE]
+> Have you heard the common phrase "Animation should not affect gameplay"?
 > <br>But you've probably already built notifies that reload your weapon - and more - without experiencing issues
 > <br><br>Its a trap that catches you later in production: The heavier your game gets, the less likely Anim Notifies are to fire
 > <br><br>This is true for Queued notifies. The alternative is Branching Point notifies
