@@ -102,7 +102,7 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(USkeletalMeshComponent* InSkel
 				UPlayMontageProStatics::GatherNotifies(MontageToPlay, NotifyId, Notifies, StartTime, TimeDilation);
 
 				// Trigger notifies before start time and remove them, if we want to trigger them before the start time
-				UPlayMontageProStatics::TriggerHistoricNotifies(Notifies, StartingPosition, bTriggerNotifiesBeforeStartTime, this);
+				UPlayMontageProStatics::HandleHistoricNotifies(Notifies, bTriggerNotifiesBeforeStartTime, this);
 
 				// Create timer delegates for notifies
 				UPlayMontageProStatics::SetupNotifyTimers(this, MeshComp->GetWorld(), Notifies);
