@@ -4,18 +4,18 @@
 > Do not use this plugin, it is not ready. At all.
 
 > [!IMPORTANT]
-> **Play Montage Pro**
+> **Play Montage Pro (PMP)**
 > <br>TODO
 > <br>And its **FREE!**
 
 > [!CAUTION]
-> Did you know?
-> <br>Anim Notifies are not guaranteed to trigger. Have you heard "Animation should not affect gameplay"?
-> <br>But with Unreal's powerful tools, you've built notifies that reload your weapon, and more! And you probably haven't experienced any issues. So it's fine, right?
-> <br>In fact, the heavier your game gets, the less likely Anim Notifies are to fire. Its a trap that catches you later in production.
-> <br>What if you had a notify that changes the movement mode to/from Flying? You can get stuck in Flying!
-> <br>This is true for Queued notifies. The alternative is Branching Point notifies.
-> <br>When two Branching Point notifies trigger on the same frame, only one will trigger!
+> Did you know? Anim Notifies are not guaranteed to trigger.
+> <br>Have you heard the common phrase "Animation should not affect gameplay"?
+> <br>You've probably already built notifies that reload your weapon and more! And without any issues.
+> <br><br>What you may not know yet, is that the heavier your game gets, the less likely Anim Notifies are to fire. Its a trap that catches you later in production.
+> <br><br>This is true for Queued notifies. The alternative is Branching Point notifies.
+> <br>When two or more Branching Point notifies trigger on the same frame, only one will trigger!
+> <br><br>What if you had a notify that changes the movement mode to/from Flying? You can get stuck in Flying!
 > <br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. PMP is the solution to this.
 
 > [!WARNING]
@@ -39,7 +39,7 @@
 
 ## DOES NOT SUPPORT TODO
 * Ticking anim notify state
-* NotifyTriggerChance
+* NotifyTriggerChance and all trigger settings
 * bTriggerOnDedicatedServer
 * SimulatedProxies and editor notifies use UE's notify pathing
 * No FAnimNotifyEventReference
