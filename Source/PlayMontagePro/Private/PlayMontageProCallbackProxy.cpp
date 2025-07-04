@@ -65,15 +65,13 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(USkeletalMeshComponent* InSkel
 					MontageInstanceID = MontageInstance->GetInstanceID();
 				}
 
-				float StartTime = StartingPosition;
 				if (StartingSection != NAME_None)
 				{
 					// PlayMontagePro needs to update StartingPosition to account for the section jump
 					const float Position = AnimInstance->Montage_GetPosition(MontageToPlay);
 					AnimInstance->Montage_JumpToSection(StartingSection, MontageToPlay);
 					const float NewPosition = AnimInstance->Montage_GetPosition(MontageToPlay);
-					const float PositionDelta = NewPosition - Position;
-					StartTime += PositionDelta;
+					StartingPosition += (NewPosition - Position);
 				}
 
 				BlendingOutDelegate.BindUObject(this, &ThisClass::OnMontageBlendingOut);
@@ -99,7 +97,8 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(USkeletalMeshComponent* InSkel
 				AnimInstance->OnMontageSectionChanged.AddDynamic(this, &ThisClass::OnMontageSectionChanged);
 
 				// Gather notifies from montage
-				UPlayMontageProStatics::GatherNotifies(MontageToPlay, NotifyId, Notifies, StartTime, TimeDilation);
+				const FName Section = AnimInstance->Montage_GetCurrentSection(MontageToPlay);
+				UPlayMontageProStatics::GatherNotifies(MontageToPlay, NotifyId, Notifies, Section, StartingPosition, TimeDilation);
 
 				// Trigger notifies before start time and remove them, if we want to trigger them before the start time
 				UPlayMontageProStatics::HandleHistoricNotifies(Notifies, bTriggerNotifiesBeforeStartTime, this);
@@ -169,7 +168,7 @@ void UPlayMontageProCallbackProxy::OnMontageSectionChanged(UAnimMontage* InMonta
 	UPlayMontageProStatics::ClearNotifyTimers(MeshComp->GetWorld(), Notifies);
 
 	// Gather notifies from montage
-	UPlayMontageProStatics::GatherNotifies(InMontage, NotifyId, Notifies, StartTime, TimeDilation);
+	UPlayMontageProStatics::GatherNotifies(InMontage, NotifyId, Notifies, SectionName, StartTime, TimeDilation);
 
 	// Create timer delegates for notifies
 	UPlayMontageProStatics::SetupNotifyTimers(this, MeshComp->GetWorld(), Notifies);

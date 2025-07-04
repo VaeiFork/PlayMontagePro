@@ -17,7 +17,7 @@ class PLAYMONTAGEPRO_API UPlayMontageProStatics : public UBlueprintFunctionLibra
 	GENERATED_BODY()
 
 public:
-	static void GatherNotifies(UAnimMontage* Montage, uint32& NotifyId, TArray<FAnimNotifyProEvent>& Notifies, float StartPosition, float TimeDilation);
+	static void GatherNotifies(UAnimMontage* Montage, uint32& NotifyId, TArray<FAnimNotifyProEvent>& Notifies, const FName& Section, float StartPosition, float TimeDilation);
 	static void HandleHistoricNotifies(TArray<FAnimNotifyProEvent>& Notifies, bool bTriggerNotifiesBeforeStartTime, IPlayMontageProInterface* Interface);
 	static void SetupNotifyTimers(IPlayMontageProInterface* Interface, const UWorld* World, TArray<FAnimNotifyProEvent>& Notifies);
 	static void ClearNotifyTimers(const UWorld* World, TArray<FAnimNotifyProEvent>& Notifies);

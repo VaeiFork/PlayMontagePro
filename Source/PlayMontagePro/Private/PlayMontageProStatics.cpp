@@ -10,12 +10,13 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageProStatics)
 
 void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& NotifyId,
-	TArray<FAnimNotifyProEvent>& Notifies, float StartPosition, float TimeDilation)
+	TArray<FAnimNotifyProEvent>& Notifies, const FName& Section, float StartPosition, float TimeDilation)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(UPlayMontageProStatics::GatherNotifies);
+
+	const int32 SectionIndex = Montage->GetSectionIndex(Section);
 	
 	Notifies.Reset();
-	
 	TArray<FAnimNotifyEvent>& MontageNotifies = Montage->Notifies;
 	for (FAnimNotifyEvent& MontageNotify : MontageNotifies)
 	{
@@ -25,13 +26,20 @@ void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& Notif
 		// Add notify to the list of notifies
 		if (UAnimNotifyPro* Notify = MontageNotify.Notify ? Cast<UAnimNotifyPro>(MontageNotify.Notify) : nullptr)
 		{
+			// Only if section is the same as the one we are playing
+			const int32 SectionIndexAtTime = Montage->GetSectionIndexFromPosition(NotifyTime);
+			if (SectionIndexAtTime != SectionIndex)
+			{
+				continue;
+			}
+			
 			// Create notify event
 			FAnimNotifyProEvent NotifyEvent = { ++NotifyId, Notify->EnsureTriggerNotify,
 				EAnimNotifyProType::Notify, StartTime };
 
 			// Cache notify
 			NotifyEvent.Notify = Notify;
-						
+			
 			Notifies.Add(NotifyEvent);
 		}
 
