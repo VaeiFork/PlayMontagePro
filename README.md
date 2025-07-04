@@ -19,10 +19,12 @@
 > <br>There is no anim notify system in Unreal that ensures your notifies will fire reliably.
 > <br>Play Montage Pro is the solution to this.
 
+> [!TIP]
+> At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
+> <br>Timers are reliable!
+
 > [!WARNING]
-> Use `git clone` instead of downloading as a zip, or you will not receive content
-> <br>[Or download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
-> <br>Install this as a project plugin, not an engine plugin
+> [Download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
 
 > [!TIP]
 > Suitable for both singleplayer and multiplayer games
@@ -38,16 +40,29 @@
 > [!IMPORTANT]
 > [Read the Wiki to Learn How to use PlayMontagePro](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
 
-## DOES NOT SUPPORT TODO
+## TODO DOES NOT SUPPORT
 * Ticking anim notify state
-* NotifyTriggerChance and all trigger settings
-* bTriggerOnDedicatedServer
+* NotifyTriggerChance and all trigger settings TODO you can override ShouldTrigger etc to add this in
 * SimulatedProxies and editor notifies use UE's notify pathing
 * No FAnimNotifyEventReference
 * Only supports montages, notifies on sequences will do nothing, only through provided nodes
 
-## ADDITIONAL THINGS PMP CAN DO
+## TODO ADDITIONAL THINGS PMP CAN DO
 * Trigger notifies earlier than StartTimeSeconds when the montage starts (ensure all notifies on the montage trigger)
+* Ensure notifies trigger on end (TODO disclaimer ordinary play montage leaves alive etc. when stopped?)
+
+## TODO ADDITIONS
+* Test stopping montage; why do timers continue??
+* Test firing in editor and sim proxies
+
+## TODO CONSIDERATIONS
+* The system isn't identical to Epic's
+	* Behaviour may not always be as intended
+	* Use this for gameplay critical systems, use Epic's system for cosmetics
+	* Because sim proxies use Epic's system, results may mismatch in some cases
+		* It is not expected that the type of use-case for this should be pertinent to sim proxies also
+		* This can be reported as an issue hopefully it will become 1:1 within reason
+* CustomTimeDilation per-actor; there are no callbacks, in fact, its a property without a setter, sloppy coding on Epic's part. This is supported as optional, but relies on `USkinnedMeshComponent::OnTickPose` to detect changes. If your dedi server doesn't tick mesh pose it will not work.
 
 ## Changelog
 
