@@ -16,8 +16,7 @@
 > <br><br>This is true for Queued notifies. The alternative is Branching Point notifies.
 > <br>When two or more Branching Point notifies trigger on the same frame, only one will trigger!
 > <br><br>What if you had a notify that changes the movement mode to or from Flying? You can get **stuck** in Flying!
-> <br>There is no anim notify system in Unreal that ensures your notifies will fire reliably.
-> <br>Play Montage Pro is the solution to this.
+> <br><br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. Play Montage Pro is the solution to this.
 
 > [!TIP]
 > At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
