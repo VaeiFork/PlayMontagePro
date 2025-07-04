@@ -67,11 +67,11 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(USkeletalMeshComponent* InSkel
 
 				if (StartingSection != NAME_None)
 				{
-					// PlayMontagePro needs to update StartingPosition to account for the section jump
-					const float Position = AnimInstance->Montage_GetPosition(MontageToPlay);
 					AnimInstance->Montage_JumpToSection(StartingSection, MontageToPlay);
+
+					// PlayMontagePro needs to update StartingPosition to account for the section jump
 					const float NewPosition = AnimInstance->Montage_GetPosition(MontageToPlay);
-					StartingPosition += (NewPosition - Position);
+					StartingPosition += (NewPosition - StartingPosition);
 				}
 
 				BlendingOutDelegate.BindUObject(this, &ThisClass::OnMontageBlendingOut);
