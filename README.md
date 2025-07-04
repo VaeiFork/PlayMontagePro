@@ -26,9 +26,9 @@
 
 There are 3 branches available. The precompiled binaries are for `gas-pro` branch only as it contains all the features.
 
-* `main`: Contains `PlayMontagePro()` node only, no GAS dependency
-* `gas`: Also contains `PlayMontageProAndWait()` with support for gameplay abilities
-* `gas-pro`: Also contains `PlayMontageProAdvancedAndWait()`, with support for multiple driven meshes and gameplay events
+* `main` 		`PlayMontagePro()` node only, no GAS dependency
+* `gas` 		`PlayMontageProAndWait()` with support for gameplay abilities
+* `gas-pro`: 	`PlayMontageProAdvancedAndWait()`, with support for multiple driven meshes and gameplay events
 
 > [!WARNING]
 > [Download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
