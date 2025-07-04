@@ -5,10 +5,11 @@
 
 > [!IMPORTANT]
 > **Play Montage Pro (PMP)**
-> <br>TODO
+> <br>Reliable Gameplay Notify System
+> <br>Multi-Mesh/Montage Support
 > <br>And its **FREE!**
 
-## Why use PlayMontagePro?
+## Why use PMP?
 
 > [!CAUTION]
 > Did you know? Anim Notifies are not guaranteed to trigger :confused:
@@ -20,7 +21,7 @@
 > <br><br>This is true for Queued notifies. The alternative is Branching Point notifies
 > <br>However, when two or more Branching Point notifies trigger on the same frame, only one will trigger! :skull:
 > <br><br>What if you had a notify that changes the movement mode away from Flying? You can get **stuck** in Flying! :space_invader:
-> <br><br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. Play Montage Pro is the solution to this. :boom:
+> <br><br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. PMP is the solution to this. :boom:
 
 > [!TIP]
 > At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
@@ -50,6 +51,9 @@ There are 3 branches available. The precompiled binaries are for `gas-pro` branc
 ## How to Use
 > [!IMPORTANT]
 > [Read the Wiki to Learn How to use PlayMontagePro](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
+
+## Credits
+Code was used from [GASShooter](https://github.com/tranek/GASShooter/) for multi-mesh/montage support and events
 
 ## TODO DOES NOT SUPPORT
 * Ticking anim notify state
