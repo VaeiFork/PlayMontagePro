@@ -9,6 +9,14 @@
 > <br>Multi-Mesh/Montage Support
 > <br>And its **FREE!**
 
+> [!TIP]
+> Suitable for both singleplayer and multiplayer games
+> <br>Supports UE5.4+
+
+> [!CAUTION]
+> PMP is currently in beta
+> <br>There are many non-standard setups that have not been fully tested
+
 ## Why use PMP?
 
 > [!CAUTION]
@@ -37,16 +45,6 @@ There are 3 branches available. The precompiled binaries are for `gas-pro` branc
 
 > [!WARNING]
 > [Download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
-
-> [!TIP]
-> Suitable for both singleplayer and multiplayer games
-> <br>Supports UE5.4+
-
-> [!CAUTION]
-> PlayMontagePro is currently in beta
-> <br>There are many non-standard setups that have not been fully tested
-> <br>PlayMontagePro has not been tested at scale in production
-> <br>Feedback is wanted on PlayMontagePro's workflow
 
 ## How to Use
 > [!IMPORTANT]
