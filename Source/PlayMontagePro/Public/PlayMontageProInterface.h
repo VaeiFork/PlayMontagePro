@@ -14,7 +14,8 @@ class UPlayMontageProInterface : public UInterface
 };
 
 /**
- * @TODO desc
+ * Interface for PlayMontagePro to allow broadcasting notify events and handling callbacks.
+ * Shared functionality between different PlayMontage nodes.
  */
 class PLAYMONTAGEPRO_API IPlayMontageProInterface
 {

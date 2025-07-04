@@ -8,6 +8,12 @@
 class UAnimNotifyStatePro;
 class UAnimNotifyPro;
 
+/**
+ * Legacy behavior for anim notifies on simulated proxies.
+ * This enum is used to determine how anim notifies should behave on simulated proxies.
+ * If set to Legacy, the notify will be triggered on simulated proxies no different to the old system.
+ * If set to Disabled, the notify will not be triggered on simulated proxies, only on authority and local clients.
+ */
 UENUM(BlueprintType)
 enum class EAnimNotifyLegacyType : uint8
 {
@@ -15,6 +21,10 @@ enum class EAnimNotifyLegacyType : uint8
 	Disabled		UMETA(ToolTip="Notify will not be triggered on simulated proxies, only on authority and local clients"),
 };
 
+/**
+ * Bitmask for anim notify events, used to determine which events should trigger callbacks.
+ * Used by UAnimNotifyPro and UAnimNotifyStatePro.
+ */
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class EAnimNotifyProEventType : uint8
 {
@@ -26,6 +36,10 @@ enum class EAnimNotifyProEventType : uint8
 };
 ENUM_CLASS_FLAGS(EAnimNotifyProEventType)
 
+/**
+ * Type of anim notify event, used to determine which callback to use.
+ * Used by FAnimNotifyProEvent.
+ */
 enum class EAnimNotifyProType : uint8
 {
 	Notify,
@@ -33,6 +47,11 @@ enum class EAnimNotifyProType : uint8
 	NotifyStateEnd,
 };
 
+/**
+ * Struct representing an anim notify event.
+ * Contains information about the notify, such as its ID, time, and whether it has been broadcast.
+ * Used by PlayMontagePro to handle anim notifies and notify states.
+ */
 USTRUCT()
 struct FAnimNotifyProEvent
 {
@@ -50,52 +69,62 @@ struct FAnimNotifyProEvent
 		, NotifyType(InNotifyType)
 	{}
 
+	/** Bitmask for ensuring that notifies are triggered if the montage aborts before they're reached when aborted due to these conditions */
 	UPROPERTY()
 	int32 EnsureTriggerNotify;
 
+	/** If true, the end state will be ensured if the notify was triggered */
 	UPROPERTY()
 	bool bEnsureEndStateIfTriggered;
 
+	/** Time at which the notify should be triggered */
 	UPROPERTY()
 	float Time;
 
+	/** Unique ID for the notify, used to identify it in the list of notifies */
 	UPROPERTY()
 	uint32 NotifyId;
 
+	/** Whether the notify has been broadcasted */
 	UPROPERTY()
 	bool bHasBroadcast;
 
+	/** Whether this notify is an end state notify, used for notify states */
 	UPROPERTY()
 	bool bIsEndState;
 
+	/** Whether the notify was skipped due to start position, used to determine if the notify should be broadcasted */
 	UPROPERTY()
 	bool bNotifySkipped;
-	
+
+	/** Pointer to the paired notify state, used for notify states to link begin and end states */
 	TObjectPtr<FAnimNotifyProEvent> NotifyStatePair;
 
+	/** Type of the notify, used to determine which callback to use */
 	EAnimNotifyProType NotifyType;
 
+	/** Timer handle for the notify */
 	FTimerHandle Timer;
+
+	/** Delegate to call when the timer expires */
 	FTimerDelegate TimerDelegate;
 
+	/** Weak pointer to the notify object, used to call the notify callback */
 	UPROPERTY()
 	TWeakObjectPtr<UAnimNotifyPro> Notify;
 
+	/** Weak pointer to the notify state object, used to call the notify state callbacks */
 	UPROPERTY()
 	TWeakObjectPtr<UAnimNotifyStatePro> NotifyState;
 
+	/** Function to call when the timer expires, used to trigger the notify */
 	void OnTimer();
-	
+
+	/** Clears the timer and delegate, used to clean up the notify when it is no longer needed */
 	void ClearTimers()
 	{
-		if (Timer.IsValid())
-		{
-			Timer.Invalidate();
-		}
-		if (TimerDelegate.IsBound())
-		{
-			TimerDelegate.Unbind();
-		}
+		if (Timer.IsValid())			{ Timer.Invalidate(); }
+		if (TimerDelegate.IsBound())	{ TimerDelegate.Unbind(); }
 	}
 
 	bool IsValid() const { return NotifyId > 0 && (Notify.IsValid() || NotifyState.IsValid()); }

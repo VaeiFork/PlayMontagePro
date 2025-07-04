@@ -116,8 +116,7 @@ void UPlayMontageProStatics::ClearNotifyTimers(const UWorld* World, TArray<FAnim
 		{
 			// Clear the timer for this notify
 			World->GetTimerManager().ClearTimer(Notify.Timer);
-			Notify.TimerDelegate.Unbind();
-			Notify.Timer.Invalidate();
+			Notify.ClearTimers();
 		}
 	}
 }
@@ -237,7 +236,7 @@ void UPlayMontageProStatics::HandleTimeDilation(IPlayMontageProInterface* Interf
 
 					// Clear the previous delegate and bind a new one
 					World->GetTimerManager().ClearTimer(Notify.Timer);
-					Notify.TimerDelegate.Unbind();
+					Notify.ClearTimers();
 					Notify.TimerDelegate = Interface->CreateTimerDelegate(Notify);
 					World->GetTimerManager().SetTimer(Notify.Timer, Notify.TimerDelegate, Notify.Time, false);
 				}
