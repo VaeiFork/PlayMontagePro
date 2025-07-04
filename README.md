@@ -11,12 +11,13 @@
 > [!CAUTION]
 > Did you know? Anim Notifies are not guaranteed to trigger.
 > <br>Have you heard the common phrase "Animation should not affect gameplay"?
-> <br>You've probably already built notifies that reload your weapon and more! And without any issues.
-> <br><br>What you may not know yet, is that the heavier your game gets, the less likely Anim Notifies are to fire. Its a trap that catches you later in production.
+> <br>But you've probably already built notifies that reload your weapon and more without experiencing issues.
+> <br><br>Its a trap that catches you later in production. The heavier your game gets, the less likely Anim Notifies are to fire.
 > <br><br>This is true for Queued notifies. The alternative is Branching Point notifies.
 > <br>When two or more Branching Point notifies trigger on the same frame, only one will trigger!
-> <br><br>What if you had a notify that changes the movement mode to/from Flying? You can get stuck in Flying!
-> <br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. PMP is the solution to this.
+> <br><br>What if you had a notify that changes the movement mode to or from Flying? You can get **stuck** in Flying!
+> <br>There is no anim notify system in Unreal that ensures your notifies will fire reliably.
+> <br>Play Montage Pro is the solution to this.
 
 > [!WARNING]
 > Use `git clone` instead of downloading as a zip, or you will not receive content
