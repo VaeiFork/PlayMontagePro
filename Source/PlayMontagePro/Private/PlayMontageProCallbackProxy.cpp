@@ -19,26 +19,29 @@ UPlayMontageProCallbackProxy::UPlayMontageProCallbackProxy(const FObjectInitiali
 }
 
 UPlayMontageProCallbackProxy* UPlayMontageProCallbackProxy::CreateProxyObjectForPlayMontagePro(
-	class USkeletalMeshComponent* InSkeletalMeshComponent,
-	class UAnimMontage* MontageToPlay,
+	USkeletalMeshComponent* InSkeletalMeshComponent,
+	UAnimMontage* MontageToPlay,
 	float PlayRate,
 	float StartingPosition,
 	FName StartingSection,
 	bool bTriggerNotifiesBeforeStartTime,
+	bool bEnableCustomTimeDilation,
 	bool bShouldStopAllMontages)
 {
 	UPlayMontageProCallbackProxy* Proxy = NewObject<UPlayMontageProCallbackProxy>();
 	Proxy->SetFlags(RF_StrongRefOnFrame);
-	Proxy->PlayMontagePro(InSkeletalMeshComponent, MontageToPlay, PlayRate, StartingPosition, StartingSection, bTriggerNotifiesBeforeStartTime, bShouldStopAllMontages);
+	Proxy->PlayMontagePro(InSkeletalMeshComponent, MontageToPlay, PlayRate, StartingPosition, StartingSection,
+		bTriggerNotifiesBeforeStartTime, bEnableCustomTimeDilation, bShouldStopAllMontages);
 	return Proxy;
 }
 
-bool UPlayMontageProCallbackProxy::PlayMontagePro(class USkeletalMeshComponent* InSkeletalMeshComponent, 
-	class UAnimMontage* MontageToPlay, 
-	float PlayRate, 
-	float StartingPosition, 
+bool UPlayMontageProCallbackProxy::PlayMontagePro(USkeletalMeshComponent* InSkeletalMeshComponent,
+	UAnimMontage* MontageToPlay,
+	float PlayRate,
+	float StartingPosition,
 	FName StartingSection,
 	bool bTriggerNotifiesBeforeStartTime,
+	bool bEnableCustomTimeDilation,
 	bool bShouldStopAllMontages)
 {
 	MeshComp = InSkeletalMeshComponent;
@@ -54,16 +57,7 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(class USkeletalMeshComponent* 
 
 			if (bPlayedSuccessfully)
 			{
-				// Gather notifies from montage
-				UPlayMontageProStatics::GatherNotifies(MontageToPlay, NotifyId, Notifies);
-
-				// Trigger notifies before start time and remove them, if we want to trigger them before the start time
-				UPlayMontageProStatics::TriggerHistoricNotifies(Notifies, StartingPosition, bTriggerNotifiesBeforeStartTime, this);
-
-				// Create timer delegates for notifies
-				UPlayMontageProStatics::SetupNotifyTimers(this, InSkeletalMeshComponent->GetWorld(), Notifies);
-				
-				// Engine default handling
+				// -- Engine default handling --
 				
 				AnimInstancePtr = AnimInstance;
 				if (const FAnimMontageInstance* MontageInstance = AnimInstance->GetActiveInstanceForMontage(MontageToPlay))
@@ -71,9 +65,15 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(class USkeletalMeshComponent* 
 					MontageInstanceID = MontageInstance->GetInstanceID();
 				}
 
+				float StartTime = StartingPosition;
 				if (StartingSection != NAME_None)
 				{
+					// PlayMontagePro needs to update StartingPosition to account for the section jump
+					const float Position = AnimInstance->Montage_GetPosition(MontageToPlay);
 					AnimInstance->Montage_JumpToSection(StartingSection, MontageToPlay);
+					const float NewPosition = AnimInstance->Montage_GetPosition(MontageToPlay);
+					const float PositionDelta = NewPosition - Position;
+					StartTime += PositionDelta;
 				}
 
 				BlendingOutDelegate.BindUObject(this, &ThisClass::OnMontageBlendingOut);
@@ -81,6 +81,31 @@ bool UPlayMontageProCallbackProxy::PlayMontagePro(class USkeletalMeshComponent* 
 
 				MontageEndedDelegate.BindUObject(this, &ThisClass::OnMontageEnded);
 				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
+
+				// -- PlayMontagePro --
+				
+				// Use the mesh comp's OnTickPose to detect time dilation changes
+				if (bEnableCustomTimeDilation)
+				{
+					TimeDilation = MeshComp->GetOwner()->CustomTimeDilation;
+					TickPoseHandle = MeshComp->OnTickPose.AddUObject(this, &ThisClass::OnTickPose);
+				}
+				else
+				{
+					TimeDilation = 1.f;
+				}
+
+				// Handle section changes
+				AnimInstance->OnMontageSectionChanged.AddDynamic(this, &ThisClass::OnMontageSectionChanged);
+
+				// Gather notifies from montage
+				UPlayMontageProStatics::GatherNotifies(MontageToPlay, NotifyId, Notifies, StartTime, TimeDilation);
+
+				// Trigger notifies before start time and remove them, if we want to trigger them before the start time
+				UPlayMontageProStatics::TriggerHistoricNotifies(Notifies, StartingPosition, bTriggerNotifiesBeforeStartTime, this);
+
+				// Create timer delegates for notifies
+				UPlayMontageProStatics::SetupNotifyTimers(this, MeshComp->GetWorld(), Notifies);
 			}
 		}
 	}
@@ -111,6 +136,7 @@ void UPlayMontageProCallbackProxy::OnMontageBlendingOut(UAnimMontage* InMontage,
 		OnBlendOut.Broadcast(NAME_None);
 		UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::BlendOut, Notifies, this);
 	}
+	bFinished = true;
 }
 
 void UPlayMontageProCallbackProxy::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
@@ -125,4 +151,42 @@ void UPlayMontageProCallbackProxy::OnMontageEnded(UAnimMontage* InMontage, bool 
 		OnInterrupted.Broadcast(NAME_None);
 		UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnInterrupted, Notifies, this);
 	}
+	
+	UPlayMontageProStatics::ClearNotifyTimers(MeshComp->GetWorld(), Notifies);
+	bFinished = true;
+}
+
+void UPlayMontageProCallbackProxy::OnMontageSectionChanged(UAnimMontage* InMontage, FName SectionName, bool bLooped)
+{
+	if (bFinished || !AnimInstancePtr.IsValid() || !Montage.IsValid() || InMontage != Montage || !MeshComp.IsValid() || !MeshComp->GetWorld())
+	{
+		return;
+	}
+
+	const float StartTime = AnimInstancePtr->Montage_GetPosition(InMontage);
+
+	// End previous notify timers
+	UPlayMontageProStatics::ClearNotifyTimers(MeshComp->GetWorld(), Notifies);
+
+	// Gather notifies from montage
+	UPlayMontageProStatics::GatherNotifies(InMontage, NotifyId, Notifies, StartTime, TimeDilation);
+
+	// Create timer delegates for notifies
+	UPlayMontageProStatics::SetupNotifyTimers(this, MeshComp->GetWorld(), Notifies);
+}
+
+void UPlayMontageProCallbackProxy::OnTickPose(USkinnedMeshComponent* SkinnedMeshComponent, float DeltaTime,
+	bool NeedsValidRootMotion)
+{
+	UPlayMontageProStatics::HandleTimeDilation(this, SkinnedMeshComponent, TimeDilation, Notifies);
+}
+
+void UPlayMontageProCallbackProxy::BeginDestroy()
+{
+	if (MeshComp.IsValid() && TickPoseHandle.IsValid() && MeshComp->OnTickPose.IsBoundToObject(this))
+	{
+		MeshComp->OnTickPose.Remove(TickPoseHandle);
+	}
+	
+	Super::BeginDestroy();
 }

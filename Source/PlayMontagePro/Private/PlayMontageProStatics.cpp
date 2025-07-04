@@ -10,7 +10,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageProStatics)
 
 void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& NotifyId,
-	TArray<FAnimNotifyProEvent>& Notifies)
+	TArray<FAnimNotifyProEvent>& Notifies, float StartPosition, float TimeDilation)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(UPlayMontageProStatics::GatherNotifies);
 	
@@ -19,14 +19,15 @@ void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& Notif
 	TArray<FAnimNotifyEvent>& MontageNotifies = Montage->Notifies;
 	for (FAnimNotifyEvent& MontageNotify : MontageNotifies)
 	{
-		const float StartTime = MontageNotify.GetTime();
+		const float NotifyTime = MontageNotify.GetTime();
+		const float StartTime = (NotifyTime - StartPosition) * TimeDilation;
 
 		// Add notify to the list of notifies
 		if (UAnimNotifyPro* Notify = MontageNotify.Notify ? Cast<UAnimNotifyPro>(MontageNotify.Notify) : nullptr)
 		{
 			// Create notify event
 			FAnimNotifyProEvent NotifyEvent = { ++NotifyId, Notify->EnsureTriggerNotify,
-				EAnimNotifyProType::Notify, MontageNotify.GetTime() };
+				EAnimNotifyProType::Notify, StartTime };
 
 			// Cache notify
 			NotifyEvent.Notify = Notify;
@@ -38,11 +39,11 @@ void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& Notif
 		if (UAnimNotifyStatePro* Notify = MontageNotify.NotifyStateClass ? Cast<UAnimNotifyStatePro>(MontageNotify.NotifyStateClass) : nullptr)
 		{
 			// Compute end time for the notify end state
-			const float EndTime = StartTime + MontageNotify.GetDuration();
+			const float EndTime = StartTime + (MontageNotify.GetDuration() * TimeDilation);
 
 			// Start state notify
 			FAnimNotifyProEvent& NotifyBeginEvent = Notifies.Add_GetRef({ ++NotifyId, Notify->EnsureTriggerNotify,
-				EAnimNotifyProType::NotifyStateBegin, MontageNotify.GetTime() });
+				EAnimNotifyProType::NotifyStateBegin, StartTime });
 
 			// End state notify
 			FAnimNotifyProEvent& NotifyEndEvent = Notifies.Add_GetRef({ ++NotifyId, Notify->EnsureTriggerNotify,
@@ -62,7 +63,7 @@ void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& Notif
 	}
 }
 
-void UPlayMontageProStatics::TriggerHistoricNotifies(TArray<FAnimNotifyProEvent>& Notifies, float StartTimeSeconds,
+void UPlayMontageProStatics::HandleHistoricNotifies(TArray<FAnimNotifyProEvent>& Notifies,
 	bool bTriggerNotifiesBeforeStartTime, IPlayMontageProInterface* Interface)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(UPlayMontageProStatics::TriggerHistoricNotifies);
@@ -70,7 +71,7 @@ void UPlayMontageProStatics::TriggerHistoricNotifies(TArray<FAnimNotifyProEvent>
 	// Trigger notifies before start time and remove them, if we want to trigger them before the start time
 	for (FAnimNotifyProEvent& Notify : Notifies)
 	{
-		if (Notify.Time <= StartTimeSeconds)
+		if (Notify.Time <= 0.f)
 		{
 			if (bTriggerNotifiesBeforeStartTime)
 			{
@@ -94,6 +95,22 @@ void UPlayMontageProStatics::SetupNotifyTimers(IPlayMontageProInterface* Interfa
 		// Set up timer for notify
 		Notify.TimerDelegate = Interface->CreateTimerDelegate(Notify);
 		World->GetTimerManager().SetTimer(Notify.Timer, Notify.TimerDelegate, Notify.Time, false);
+	}
+}
+
+void UPlayMontageProStatics::ClearNotifyTimers(const UWorld* World, TArray<FAnimNotifyProEvent>& Notifies)
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(UPlayMontageProStatics::ForfeitNotifyTimers);
+	
+	for (FAnimNotifyProEvent& Notify : Notifies)
+	{
+		if (Notify.Timer.IsValid())
+		{
+			// Clear the timer for this notify
+			World->GetTimerManager().ClearTimer(Notify.Timer);
+			Notify.TimerDelegate.Unbind();
+			Notify.Timer.Invalidate();
+		}
 	}
 }
 
@@ -177,5 +194,46 @@ void UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType
 		{
 			Interface->BroadcastNotifyEvent(Event);
 		}
+	}
+}
+
+void UPlayMontageProStatics::HandleTimeDilation(IPlayMontageProInterface* Interface, const USkinnedMeshComponent* MeshComp,
+	float& TimeDilation, TArray<FAnimNotifyProEvent>& Notifies)
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(UPlayMontageProStatics::HandleTimeDilation);
+	
+	const UWorld* World = MeshComp ? MeshComp->GetWorld() : nullptr;
+	if (!World)
+	{
+		return;
+	}
+	
+	const float NewTimeDilation = MeshComp->GetOwner()->CustomTimeDilation;
+	if (!FMath::IsNearlyEqual(TimeDilation, NewTimeDilation))
+	{
+		// If time dilation has changed, we need to update the notifies
+		for (FAnimNotifyProEvent& Notify : Notifies)
+		{
+			// Any elapsed time should be maintained, and only remaining time should be updated
+			// Then we need to restart the timer based on the new time, without the already elapsed time
+			// So that only the remaining time is affected by time dilation changes
+			if (Notify.IsValid() && !Notify.bNotifySkipped && !Notify.bHasBroadcast && Notify.Timer.IsValid())
+			{
+				const float ElapsedTime = World->GetTimerManager().GetTimerElapsed(Notify.Timer);
+				const float RemainingTime = Notify.Time - ElapsedTime;
+				if (RemainingTime > 0.f)
+				{
+					// Restart the timer with the new time dilation
+					Notify.Time = ElapsedTime + RemainingTime / NewTimeDilation;
+
+					// Clear the previous delegate and bind a new one
+					World->GetTimerManager().ClearTimer(Notify.Timer);
+					Notify.TimerDelegate.Unbind();
+					Notify.TimerDelegate = Interface->CreateTimerDelegate(Notify);
+					World->GetTimerManager().SetTimer(Notify.Timer, Notify.TimerDelegate, Notify.Time, false);
+				}
+			}
+		}
+		TimeDilation = NewTimeDilation;
 	}
 }
