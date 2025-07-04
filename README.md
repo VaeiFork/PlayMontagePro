@@ -22,6 +22,14 @@
 > At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
 > <br>Timers are reliable!
 
+## Get PlayMontagePro
+
+There are 3 branches available. The precompiled binaries are for `gas-pro` branch only as it contains all the features.
+
+* `main`: Contains `PlayMontagePro()` node only, no GAS dependency
+* `gas`: Also contains `PlayMontageProAndWait()` with support for gameplay abilities
+* `gas-pro`: Also contains `PlayMontageProAdvancedAndWait()`, with support for multiple driven meshes and gameplay events
+
 > [!WARNING]
 > [Download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
 
