@@ -15,14 +15,16 @@ enum class EAnimNotifyLegacyType : uint8
 	Disabled		UMETA(ToolTip="Notify will not be triggered on simulated proxies, only on authority and local clients"),
 };
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class EAnimNotifyProEventType : uint8
 {
-	OnCompleted,
-	BlendOut,
-	OnInterrupted,
-	OnCancelled,
+	None			= 0	UMETA(Hidden),
+	OnCompleted		= 1 << 0,
+	BlendOut		= 1 << 1,
+	OnInterrupted	= 1 << 2,
+	OnCancelled		= 1 << 3,
 };
+ENUM_CLASS_FLAGS(EAnimNotifyProEventType)
 
 enum class EAnimNotifyProType : uint8
 {
@@ -36,7 +38,7 @@ struct FAnimNotifyProEvent
 {
 	GENERATED_BODY()
 	
-	FAnimNotifyProEvent(uint32 InNotifyId = 0, const TArray<EAnimNotifyProEventType>& InEnsureTriggerNotify = {}, EAnimNotifyProType InNotifyType = EAnimNotifyProType::Notify, float InTime = 0.f)
+	FAnimNotifyProEvent(uint32 InNotifyId = 0, int32 InEnsureTriggerNotify = 0, EAnimNotifyProType InNotifyType = EAnimNotifyProType::Notify, float InTime = 0.f)
 		: EnsureTriggerNotify(InEnsureTriggerNotify)
 		, bEnsureEndStateIfTriggered(true)
 		, Time(InTime)
@@ -49,7 +51,7 @@ struct FAnimNotifyProEvent
 	{}
 
 	UPROPERTY()
-	TArray<EAnimNotifyProEventType> EnsureTriggerNotify;
+	int32 EnsureTriggerNotify;
 
 	UPROPERTY()
 	bool bEnsureEndStateIfTriggered;

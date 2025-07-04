@@ -17,8 +17,8 @@ class PLAYMONTAGEPRO_API UAnimNotifyStatePro : public UAnimNotifyState
 
 public:
 	/** Ensure that notifies are triggered if the montage aborts before they're reached when aborted due to these conditions */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AnimNotify)
-	TArray<EAnimNotifyProEventType> EnsureTriggerNotify = {};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AnimNotify, meta=(BitMask, BitmaskEnum="/Script/PlayMontagePro.EAnimNotifyProEventType"))
+	int32 EnsureTriggerNotify = 0;
 
 	/** If disabled this notify will be skipped on dedicated servers */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AnimNotify)

@@ -184,7 +184,8 @@ void UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType
 		}
 		
 		// Ensure that notifies are triggered if the montage aborts before they're reached when aborted due to these conditions
-		if (Event.EnsureTriggerNotify.Contains(EventType))
+		const EAnimNotifyProEventType EventFlags = static_cast<EAnimNotifyProEventType>(Event.EnsureTriggerNotify);
+		if (EnumHasAnyFlags(EventFlags, EventType))
 		{
 			Interface->BroadcastNotifyEvent(Event);
 		}
