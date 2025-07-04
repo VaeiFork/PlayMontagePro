@@ -8,21 +8,23 @@
 > <br>TODO
 > <br>And its **FREE!**
 
+## Why use PlayMontagePro?
+
 > [!CAUTION]
-> Did you know? Anim Notifies are not guaranteed to trigger
+> Did you know? Anim Notifies are not guaranteed to trigger :confused:
 
 > [!NOTE]
 > Have you heard the common phrase "Animation should not affect gameplay"?
-> <br>But you've probably already built notifies that reload your weapon - and more - without experiencing issues
-> <br><br>Its a trap that catches you later in production: The heavier your game gets, the less likely Anim Notifies are to fire
+> <br>But you've probably already built notifies that reload your weapon - and more - without experiencing issues :disguised_face:
+> <br><br>Its a trap that catches you later in production: The heavier your game gets, the less likely Anim Notifies are to fire :dizzy_face: 
 > <br><br>This is true for Queued notifies. The alternative is Branching Point notifies
-> <br>However, when two or more Branching Point notifies trigger on the same frame, only one will trigger!
-> <br><br>What if you had a notify that changes the movement mode away from Flying? You can get **stuck** in Flying!
-> <br><br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. Play Montage Pro is the solution to this.
+> <br>However, when two or more Branching Point notifies trigger on the same frame, only one will trigger! :skull:
+> <br><br>What if you had a notify that changes the movement mode away from Flying? You can get **stuck** in Flying! :space_invader:
+> <br><br>There is no anim notify system in Unreal that ensures your notifies will fire reliably. Play Montage Pro is the solution to this. :boom:
 
 > [!TIP]
 > At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
-> <br>Timers are reliable!
+> <br>Timers are reliable! :rocket:
 
 ## Get PlayMontagePro
 
