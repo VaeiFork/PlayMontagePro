@@ -6,6 +6,10 @@
 #include "AnimNotifyPro.h"
 #include "AnimNotifyStatePro.h"
 #include "PlayMontageProInterface.h"
+#include "Animation/AnimMontage.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageProStatics)
 

@@ -7,6 +7,8 @@
 #include "UObject/Interface.h"
 #include "PlayMontageProInterface.generated.h"
 
+class UAnimMontage;
+
 UINTERFACE()
 class UPlayMontageProInterface : public UInterface
 {

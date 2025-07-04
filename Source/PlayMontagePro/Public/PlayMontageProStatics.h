@@ -7,7 +7,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PlayMontageProStatics.generated.h"
 
+class UAnimMontage;
 class IPlayMontageProInterface;
+
 /**
  * Common utility functions for PlayMontagePro shared between different PlayMontage nodes.
  */

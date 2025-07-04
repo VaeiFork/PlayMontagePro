@@ -2,6 +2,8 @@
 
 
 #include "AnimNotifyPro.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimMontage.h"
 
 #if WITH_EDITOR
 #include "Animation/DebugSkelMeshComponent.h"

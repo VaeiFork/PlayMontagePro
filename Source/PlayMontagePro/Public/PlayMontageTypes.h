@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
+#include "TimerManager.h"
 #include "PlayMontageTypes.generated.h"
 
 class UAnimNotifyStatePro;

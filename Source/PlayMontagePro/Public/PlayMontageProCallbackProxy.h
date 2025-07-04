@@ -8,10 +8,14 @@
 #include "PlayMontageTypes.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/Object.h"
+#include "Animation/AnimInstance.h"
 #include "PlayMontageProCallbackProxy.generated.h"
 
 class UAnimNotifyStatePro;
 class UAnimNotifyPro;
+class UAnimMontage;
+class USkeletalMeshComponent;
+struct FBranchingPointNotifyPayload;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMontagePlayDelegate, FName, NotifyName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMontagePlayNotifyDelegate, const FAnimNotifyProEvent&, Event);
