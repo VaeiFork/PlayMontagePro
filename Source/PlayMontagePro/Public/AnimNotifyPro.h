@@ -8,7 +8,9 @@
 #include "AnimNotifyPro.generated.h"
 
 /**
- * @TODO desc
+ * Base class for anim notifies that can be used with PlayMontagePro.
+ * Uses timers to ensure that notifies are triggered at the correct time.
+ * Unlike Epic's UAnimNotify, which is not guaranteed to trigger.
  */
 UCLASS(Abstract, Blueprintable, const)
 class PLAYMONTAGEPRO_API UAnimNotifyPro : public UAnimNotify
