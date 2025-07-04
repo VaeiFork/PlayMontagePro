@@ -1,14 +1,14 @@
 # Grasp <img align="right" width=128, height=128 src="https://github.com/Vaei/PlayMontagePro/blob/main/Resources/Icon128.png">
 
 > [!CAUTION]
-> Do not use this plugin, it is not ready. At all.
+> WIP. Under heavy development.
 
 > [!IMPORTANT]
 > **Play Montage Pro (PMP)**
 > <br>TODO
 > <br>And its **FREE!**
 
-> [!CAUTION]
+> [!NOTE]
 > Did you know? Anim Notifies are not guaranteed to trigger.
 > <br>Have you heard the common phrase "Animation should not affect gameplay"?
 > <br>But you've probably already built notifies that reload your weapon and more without experiencing issues.
