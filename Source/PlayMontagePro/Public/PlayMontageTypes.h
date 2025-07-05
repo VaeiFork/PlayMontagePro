@@ -9,6 +9,7 @@
 
 class UAnimNotifyStatePro;
 class UAnimNotifyPro;
+class UAnimMontage;
 
 /**
  * Legacy behavior for anim notifies on simulated proxies.
@@ -174,9 +175,11 @@ struct PLAYMONTAGEPRO_API FDrivenMontagePair
 {
 	GENERATED_BODY()
 
-	FDrivenMontagePair(UAnimMontage* InMontage = nullptr, USkeletalMeshComponent* InSkeletalMeshComponent = nullptr)
-		: Montage(InMontage)
-		, Mesh(InSkeletalMeshComponent)
+	FDrivenMontagePair(UAnimMontage* InMontage, USkeletalMeshComponent* InSkeletalMeshComponent);
+	
+	FDrivenMontagePair()
+		: Montage(nullptr)
+		, Mesh(nullptr)
 	{}
 
 	/** The montage to be played, can be replicated or local */
@@ -234,7 +237,7 @@ struct PLAYMONTAGEPRO_API FMontageToPlay
 
 	/** The main driver montage that will be played */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
-	UAnimMontage* DriverMontage;
+	TObjectPtr<UAnimMontage> DriverMontage;
 
 	/** Collection of driven montages that will be played alongside the driver montage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)

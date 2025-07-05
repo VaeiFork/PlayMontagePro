@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "Animation/AnimMontage.h"
 #include "PMPAbilitySystemComponent.generated.h"
 
 // Most of this is from GASShooter and therefore also Copyright 2024 Dan Kestranek.
 // https://github.com/tranek/GASShooter
 
-struct FMontageBlendSettings;
 /**
  * Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
  */

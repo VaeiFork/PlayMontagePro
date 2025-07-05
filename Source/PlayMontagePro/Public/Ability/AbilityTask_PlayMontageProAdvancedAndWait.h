@@ -8,11 +8,12 @@
 #include "UObject/ObjectMacros.h"
 #include "Animation/AnimInstance.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "Animation/AnimMontage.h"
 #include "AbilityTask_PlayMontageProAdvancedAndWait.generated.h"
 
+class UAnimMontage;
 class UPMPGameplayAbility;
 class UPMPAbilitySystemComponent;
-struct FMontageBlendSettings;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMontageAdvancedWaitEventDelegate, FGameplayTag, EventTag, FGameplayEventData, EventData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMontageAdvancedWaitNotifyDelegate, const FAnimNotifyProEvent&, Event);
@@ -125,12 +126,8 @@ public:
 	virtual void NotifyBeginCallback(const FAnimNotifyProEvent& Event) override { OnNotifyStateBegin.Broadcast(Event); }
 	virtual void NotifyEndCallback(const FAnimNotifyProEvent& Event) override { OnNotifyStateEnd.Broadcast(Event); }
 
-	virtual UAnimMontage* GetMontage() const override final { return IsValid(MontageToPlay) ? MontageToPlay : nullptr; }
-	virtual USkeletalMeshComponent* GetMesh() const override final
-	{
-		const bool bValidMesh = Ability && Ability->GetCurrentActorInfo() && Ability->GetCurrentActorInfo()->SkeletalMeshComponent.IsValid();
-		return bValidMesh ? Ability->GetCurrentActorInfo()->SkeletalMeshComponent.Get() : nullptr;
-	}
+	virtual UAnimMontage* GetMontage() const override final;
+	virtual USkeletalMeshComponent* GetMesh() const override final;
 
 	virtual FTimerDelegate CreateTimerDelegate(FAnimNotifyProEvent& Event) override { return FTimerDelegate::CreateUObject(this, &IPlayMontageProInterface::OnNotifyTimer, &Event); }
 	// ~End IPlayMontageProInterface
@@ -146,17 +143,17 @@ protected:
 
 	virtual void OnDestroy(bool AbilityEnded) override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks")
 	void MontageJumpToSection(FName SectionName, bool bOnlyDriver = false);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks")
 	void MontageSetNextSection(FName FromSection, FName ToSection, bool bOnlyDriver = false);
 	
 	/** Checks if the ability is playing a montage and stops that montage, returns true if a montage was stopped, false if not. */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks")
 	bool StopPlayingMontage(float OverrideBlendOutTime = -1.f);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks")
 	bool IsPlayingMontage() const;
 
 	FOnMontageBlendedInEnded BlendedInDelegate;

@@ -6,6 +6,9 @@
 #include "AbilitySystemLog.h"
 #include "Ability/PMPGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Engine/World.h"
 
 // Most of this is from GASShooter and therefore also Copyright 2024 Dan Kestranek.
 // https://github.com/tranek/GASShooter

@@ -1,13 +1,14 @@
 // Copyright (c) Jared Taylor
 
 #include "Ability/AbilityTask_PlayMontageProAdvancedAndWait.h"
-#include "Animation/AnimMontage.h"
 #include "GameFramework/Character.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 #include "AbilitySystemGlobals.h"
 #include "Ability/PMPAbilitySystemComponent.h"
 #include "Ability/PMPGameplayAbility.h"
+#include "Logging/MessageLog.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AbilityTask_PlayMontageProAdvancedAndWait)
 
@@ -296,6 +297,17 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::ExternalCancel()
 		OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
 	}
 	Super::ExternalCancel();
+}
+
+UAnimMontage* UAbilityTask_PlayMontageProAdvancedAndWait::GetMontage() const
+{
+	return IsValid(MontageToPlay) ? MontageToPlay : nullptr;
+}
+
+USkeletalMeshComponent* UAbilityTask_PlayMontageProAdvancedAndWait::GetMesh() const
+{
+	const bool bValidMesh = Ability && Ability->GetCurrentActorInfo() && Ability->GetCurrentActorInfo()->SkeletalMeshComponent.IsValid();
+	return bValidMesh ? Ability->GetCurrentActorInfo()->SkeletalMeshComponent.Get() : nullptr;
 }
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::OnGameplayEvent(FGameplayTag EventTag,
