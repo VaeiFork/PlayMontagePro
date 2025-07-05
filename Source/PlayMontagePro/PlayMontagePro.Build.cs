@@ -15,6 +15,7 @@ public class PlayMontagePro : ModuleRules
 				"GameplayAbilities",
 				"GameplayTasks",
 				"GameplayTags",
+				"AngelscriptGAS",
 			}
 			);
 			

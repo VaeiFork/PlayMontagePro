@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
+#include "AngelscriptAbilitySystemComponent.h"
 #include "Animation/AnimMontage.h"
 #include "PMPAbilitySystemComponent.generated.h"
 
@@ -85,7 +85,7 @@ struct PLAYMONTAGEPRO_API FGameplayAbilityRepAnimMontageForMesh
 };
 
 UCLASS(ClassGroup=(AbilitySystem), meta=(BlueprintSpawnableComponent))
-class PLAYMONTAGEPRO_API UPMPAbilitySystemComponent : public UAbilitySystemComponent
+class PLAYMONTAGEPRO_API UPMPAbilitySystemComponent : public UAngelscriptAbilitySystemComponent
 {
 	GENERATED_BODY()
 

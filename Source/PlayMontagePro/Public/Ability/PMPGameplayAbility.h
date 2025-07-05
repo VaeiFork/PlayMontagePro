@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AngelscriptGASAbility.h"
 #include "PMPGameplayAbility.generated.h"
 
 // Most of this is from GASShooter and therefore also Copyright 2024 Dan Kestranek.
@@ -31,7 +31,7 @@ struct PLAYMONTAGEPRO_API FAbilityMeshMontage
  * 
  */
 UCLASS()
-class PLAYMONTAGEPRO_API UPMPGameplayAbility : public UGameplayAbility
+class PLAYMONTAGEPRO_API UPMPGameplayAbility : public UAngelscriptGASAbility
 {
 	GENERATED_BODY()
 
