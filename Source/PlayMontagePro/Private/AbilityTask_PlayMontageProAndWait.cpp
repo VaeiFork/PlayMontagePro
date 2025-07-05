@@ -154,15 +154,15 @@ void UAbilityTask_PlayMontageProAndWait::Activate()
 					return;
 				}
 
-				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAbilityTask_PlayMontageProAndWait::OnGameplayAbilityCancelled);
+				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &ThisClass::OnGameplayAbilityCancelled);
 
-				BlendedInDelegate.BindUObject(this, &UAbilityTask_PlayMontageProAndWait::OnMontageBlendedIn);
+				BlendedInDelegate.BindUObject(this, &ThisClass::OnMontageBlendedIn);
 				AnimInstance->Montage_SetBlendedInDelegate(BlendedInDelegate, MontageToPlay);
 
-				BlendingOutDelegate.BindUObject(this, &UAbilityTask_PlayMontageProAndWait::OnMontageBlendingOut);
+				BlendingOutDelegate.BindUObject(this, &ThisClass::OnMontageBlendingOut);
 				AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
 
-				MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMontageProAndWait::OnMontageEnded);
+				MontageEndedDelegate.BindUObject(this, &ThisClass::OnMontageEnded);
 				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
 				ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
