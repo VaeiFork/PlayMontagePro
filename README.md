@@ -45,6 +45,10 @@ Otherwise, use the existing notify system.
 	* Gameplay Timers triggering notifies reliably
  	* Trigger notifies placed prior to the anim start time
   	* Ensure notifies trigger on anim end, even if they were not reached
+* Multi-mesh support with Driver, Replicated Driven, and Local Driven Montages (`gas-pro` branch only)
+	* Driven Montages optionally match the duration of the Driver montage
+ 	* Example use-case: TP character mesh Reloads (Driver), so their TP weapon plays a matching replicated driven montage (replicated so simulated proxies play the montage), FP character mesh and weapon both play their own Local Driven Montages (not replicated)
+  * Additional Blend in and out parameters (`gas-pro` branch only)
 
 ## Limitations
 
