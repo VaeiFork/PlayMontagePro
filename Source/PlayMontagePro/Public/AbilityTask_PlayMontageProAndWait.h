@@ -6,9 +6,11 @@
 #include "PlayMontageProStatics.h"
 #include "PlayMontageTypes.h"
 #include "UObject/ObjectMacros.h"
-#include "Animation/AnimInstance.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "Animation/AnimInstance.h"
 #include "AbilityTask_PlayMontageProAndWait.generated.h"
+
+class UAnimMontage;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
 
@@ -87,12 +89,8 @@ public:
 	virtual void NotifyBeginCallback(const FAnimNotifyProEvent& Event) override {}
 	virtual void NotifyEndCallback(const FAnimNotifyProEvent& Event) override {}
 
-	virtual UAnimMontage* GetMontage() const override final { return IsValid(MontageToPlay) ? MontageToPlay : nullptr; }
-	virtual USkeletalMeshComponent* GetMesh() const override final
-	{
-		const bool bValidMesh = Ability && Ability->GetCurrentActorInfo() && Ability->GetCurrentActorInfo()->SkeletalMeshComponent.IsValid();
-		return bValidMesh ? Ability->GetCurrentActorInfo()->SkeletalMeshComponent.Get() : nullptr;
-	}
+	virtual UAnimMontage* GetMontage() const override final;
+	virtual USkeletalMeshComponent* GetMesh() const override final;
 
 	virtual FTimerDelegate CreateTimerDelegate(FAnimNotifyProEvent& Event) override { return FTimerDelegate::CreateUObject(this, &IPlayMontageProInterface::OnNotifyTimer, &Event); }
 	// ~End IPlayMontageProInterface

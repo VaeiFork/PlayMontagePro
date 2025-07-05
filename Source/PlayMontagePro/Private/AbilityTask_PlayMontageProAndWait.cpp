@@ -2,6 +2,7 @@
 
 #include "AbilityTask_PlayMontageProAndWait.h"
 #include "Animation/AnimMontage.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
@@ -239,6 +240,17 @@ void UAbilityTask_PlayMontageProAndWait::ExternalCancel()
 		OnCancelled.Broadcast();
 	}
 	Super::ExternalCancel();
+}
+
+UAnimMontage* UAbilityTask_PlayMontageProAndWait::GetMontage() const
+{
+	return IsValid(MontageToPlay) ? MontageToPlay : nullptr;
+}
+
+USkeletalMeshComponent* UAbilityTask_PlayMontageProAndWait::GetMesh() const
+{
+	const bool bValidMesh = Ability && Ability->GetCurrentActorInfo() && Ability->GetCurrentActorInfo()->SkeletalMeshComponent.IsValid();
+	return bValidMesh ? Ability->GetCurrentActorInfo()->SkeletalMeshComponent.Get() : nullptr;
 }
 
 void UAbilityTask_PlayMontageProAndWait::OnMontageSectionChanged(UAnimMontage* InMontage, FName SectionName,
