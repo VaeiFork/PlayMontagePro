@@ -1,12 +1,10 @@
 # Grasp <img align="right" width=128, height=128 src="https://github.com/Vaei/PlayMontagePro/blob/main/Resources/Icon128.png">
 
-> [!CAUTION]
-> WIP. Under heavy development.
-
 > [!IMPORTANT]
 > **Play Montage Pro (PMP)**
 > <br>Reliable Gameplay Notify System
 > <br>Multi-Mesh/Montage Support
+> <br>Additional Blending Parameters
 > <br>And its **FREE!**
 
 > [!TIP]
@@ -37,15 +35,48 @@
 
 ## When to use PMP
 
-When your notifies need to affect gameplay reliably, use PMP. Otherwise, use the existing notify system.
+When your notifies need to affect gameplay reliably, use PMP.
+
+Otherwise, use the existing notify system.
+
+## Features
+
+* ProNotifySystem
+	* Gameplay Timers triggering notifies reliably
+ 	* Trigger notifies placed prior to the anim start time
+  	* Ensure notifies trigger on anim end, even if they were not reached
+
+## Limitations
+
+> [!TIP]
+> ProNotifySystem is timer-based and does not run through the animation system
+> <br>This makes it reliable, but it works differently, and may produce different results.
+
+* Anim Notify States supported Start and End - But not Tick
+* Only supports notifies on Montages not their AnimSequences
+* Trigger Settings such as `NotifyTriggerChance` will not do anything
+	* You can optionally override `ShouldTriggerNotify()` in C++ to implement this behaviour yourself
+ * SimulatedProxies typically don't get calls to play montages thus cannot operate on timers and don't support Pro Notifies as a result
+ 	* SimulatedProxies as well as Editor can optionally use the engine's notify system instead
+  * `FAnimNotifyEventReference` does not exist for notify callbacks
+  * `CustomTimeDilation` is a per-actor Time Dilation, however there are no callbacks or even setter for this property
+  	* ProNotifySystem relies on `USkinnedMeshComponent::OnTickPose` to detect changes. If your dedicated server doesn't tick the mesh pose it will not work.
+   	* There is likely a performance overhead with enabling this
+
+## Considerations
+
+* ProNotifySystem is very different to Epic's implementation
+	* Triggering behaviour may not always be identical - but you can report this if you believe it is a bug
+ 	* Use this for gameplay critical systems only, and use Epic's for cosmetics
+  	* Because SimulatedProxies and Editor run on Epic's system, results may not be consistent
 
 ## Get PMP
 
 There are 3 branches available. The precompiled binaries are for `gas-pro` branch only as it contains all the features.
 
-* `main` 		`PlayMontagePro()` node only, no GAS dependency
-* `gas` 		`PlayMontageProAndWait()` with support for gameplay abilities
-* `gas-pro`: 	`PlayMontageProAdvancedAndWait()`, with support for multiple driven meshes and gameplay events
+* `main`	`PlayMontagePro()` only, no GAS dependency, supports Pro Notify System only
+* `gas` 	`PlayMontageProAndWait()` with support for gameplay abilities, supports Pro Notify System only
+* `gas-pro`:	`PlayMontageProAdvancedAndWait()`, with support for multiple driven meshes and gameplay events and additional blend parameters
 
 > [!WARNING]
 > [Download the pre-compiled binaries here](https://github.com/Vaei/PlayMontagePro/wiki/How-to-Use)
@@ -56,30 +87,6 @@ There are 3 branches available. The precompiled binaries are for `gas-pro` branc
 
 ## Credits
 Code was used from [GASShooter](https://github.com/tranek/GASShooter/) for multi-mesh/montage support and events
-
-## TODO DOES NOT SUPPORT
-* Ticking anim notify state
-* NotifyTriggerChance and all trigger settings TODO you can override ShouldTrigger etc to add this in
-* SimulatedProxies and editor notifies use UE's notify pathing
-* No FAnimNotifyEventReference
-* Only supports montages, notifies on sequences will do nothing, only through provided nodes
-
-## TODO ADDITIONAL THINGS PMP CAN DO
-* Trigger notifies earlier than StartTimeSeconds when the montage starts (ensure all notifies on the montage trigger)
-* Ensure notifies trigger on end (TODO disclaimer ordinary play montage leaves alive etc. when stopped?)
-
-## TODO ADDITIONS
-* Test stopping montage; why do timers continue??
-* Test firing in editor and sim proxies
-
-## TODO CONSIDERATIONS
-* The system isn't identical to Epic's
-	* Behaviour may not always be as intended
-	* Use this for gameplay critical systems, use Epic's system for cosmetics
-	* Because sim proxies use Epic's system, results may mismatch in some cases
-		* It is not expected that the type of use-case for this should be pertinent to sim proxies also
-		* This can be reported as an issue hopefully it will become 1:1 within reason
-* CustomTimeDilation per-actor; there are no callbacks, in fact, its a property without a setter, sloppy coding on Epic's part. This is supported as optional, but relies on `USkinnedMeshComponent::OnTickPose` to detect changes. If your dedi server doesn't tick mesh pose it will not work.
 
 ## Changelog
 
