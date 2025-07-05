@@ -11,6 +11,7 @@
 #include "Animation/AnimMontage.h"
 #include "AbilityTask_PlayMontageProAdvancedAndWait.generated.h"
 
+struct FMontageBlendSettings;
 class UAnimMontage;
 class UPMPGameplayAbility;
 class UPMPAbilitySystemComponent;
