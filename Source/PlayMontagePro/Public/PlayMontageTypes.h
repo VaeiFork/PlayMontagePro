@@ -55,7 +55,7 @@ enum class EAnimNotifyProType : uint8
  * Used by PlayMontagePro to handle anim notifies and notify states.
  */
 USTRUCT()
-struct FAnimNotifyProEvent
+struct PLAYMONTAGEPRO_API FAnimNotifyProEvent
 {
 	GENERATED_BODY()
 	
