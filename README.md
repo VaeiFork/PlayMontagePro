@@ -35,7 +35,11 @@
 > At it's core PMP uses timers to trigger notifies when you play a montage or change montage sections
 > <br>Timers are reliable! :rocket:
 
-## Get PlayMontagePro
+## When to use PMP
+
+When your notifies need to affect gameplay reliably, use PMP. Otherwise, use the existing notify system.
+
+## Get PMP
 
 There are 3 branches available. The precompiled binaries are for `gas-pro` branch only as it contains all the features.
 
