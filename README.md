@@ -1,4 +1,4 @@
-# Grasp <img align="right" width=128, height=128 src="https://github.com/Vaei/PlayMontagePro/blob/main/Resources/Icon128.png">
+# PlayMontagePro (PMP) <img align="right" width=128, height=128 src="https://github.com/Vaei/PlayMontagePro/blob/main/Resources/Icon128.png">
 
 > [!IMPORTANT]
 > **Play Montage Pro (PMP)**
