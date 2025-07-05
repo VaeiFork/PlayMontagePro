@@ -14,6 +14,7 @@ public class PlayMontagePro : ModuleRules
 				"Core",
 				"GameplayAbilities",
 				"GameplayTasks",
+				"GameplayTags",
 			}
 			);
 			

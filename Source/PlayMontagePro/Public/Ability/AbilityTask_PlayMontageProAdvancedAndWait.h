@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) Jared Taylor
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,32 +8,49 @@
 #include "UObject/ObjectMacros.h"
 #include "Animation/AnimInstance.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "AbilityTask_PlayMontageProAndWait.generated.h"
+#include "AbilityTask_PlayMontageProAdvancedAndWait.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
+class UPMPGameplayAbility;
+class UPMPAbilitySystemComponent;
+struct FMontageBlendSettings;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMontageAdvancedWaitEventDelegate, FGameplayTag, EventTag, FGameplayEventData, EventData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMontageAdvancedWaitNotifyDelegate, const FAnimNotifyProEvent&, Event);
 
 /** Ability task to simply play a montage. Many games will want to make a modified version of this task that looks for game-specific events */
 UCLASS()
-class PLAYMONTAGEPRO_API UAbilityTask_PlayMontageProAndWait : public UAbilityTask, public IPlayMontageProInterface
+class PLAYMONTAGEPRO_API UAbilityTask_PlayMontageProAdvancedAndWait : public UAbilityTask, public IPlayMontageProInterface
 {
 	GENERATED_BODY()
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnCompleted;
+	FMontageAdvancedWaitEventDelegate	OnCompleted;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnBlendedIn;
+	FMontageAdvancedWaitEventDelegate	OnBlendedIn;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnBlendOut;
+	FMontageAdvancedWaitEventDelegate	OnBlendOut;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnInterrupted;
+	FMontageAdvancedWaitEventDelegate	OnInterrupted;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnCancelled;
+	FMontageAdvancedWaitEventDelegate	OnCancelled;
 
+	UPROPERTY(BlueprintAssignable)
+	FMontageAdvancedWaitEventDelegate	OnEventReceived;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageAdvancedWaitNotifyDelegate	OnNotify;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageAdvancedWaitNotifyDelegate	OnNotifyStateBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageAdvancedWaitNotifyDelegate	OnNotifyStateEnd;
+	
 	UFUNCTION()
 	void OnMontageBlendedIn(UAnimMontage* Montage);
 
@@ -55,26 +72,47 @@ public:
 	 *
 	 * @param OwningAbility
 	 * @param TaskInstanceName Set to override the name of this task, for later querying
-	 * @param MontageToPlay The montage to play on the character
+	 * @param EventTags Event tags to listen for. Any gameplay events matching these tags will activate the EventReceived callback. If empty, all events will trigger callback
+	 * @param MontageToPlay The montage(s) to play on the character
+	 * @param bDrivenMontagesMatchDriverDuration If true, all driven montages will run for the same duration as the driver montage
 	 * @param Rate Change to play the montage faster or slower
 	 * @param StartSection If not empty, named montage section to start from
-	 * @param bTriggerNotifiesBeforeStartTime Whether to trigger notifies before the starting position.
-	 * @param bEnableCustomTimeDilation Whether to enable custom time dilation for the montage. Requires the mesh component to tick pose. May have additional performance overhead.
+	 * @param ProNotifyParams Parameters for Pro notifies, which trigger reliably unlike Epic's notify system.
+	 * @param bOverrideBlendIn If true apply BlendInOverride settings instead of the settings assigned to the montage
+	 * @param BlendInOverride Settings to use if bOverrideBlendIn is true
 	 * @param bStopWhenAbilityEnds If true, this montage will be aborted if the ability ends normally. It is always stopped when the ability is explicitly cancelled
 	 * @param AnimRootMotionTranslationScale Change to modify size of root motion or set to 0 to block it entirely
 	 * @param StartTimeSeconds Starting time offset in montage, this will be overridden by StartSection if that is also set
 	 * @param bAllowInterruptAfterBlendOut If true, you can receive OnInterrupted after an OnBlendOut started (otherwise OnInterrupted will not fire when interrupted, but you will not get OnComplete).
+	 * @param OverrideBlendOutTimeOnCancelAbility If >= 0 it will override the blend out time when ability is cancelled.
+	 * @param OverrideBlendOutTimeOnEndAbility If >= 0 it will override the blend out time when ability ends.
 	 */
-	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (DisplayName="PlayMontageProAndWait",
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (DisplayName="PlayMontageProAdvancedAndWait",
 		HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-	static UAbilityTask_PlayMontageProAndWait* CreatePlayMontageProAndWaitProxy(UGameplayAbility* OwningAbility,
-		FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate = 1.f, FName StartSection = NAME_None,
-		bool bTriggerNotifiesBeforeStartTime = false, bool bEnableCustomTimeDilation = false,
-		bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f,
-		bool bAllowInterruptAfterBlendOut = false);
+	static UAbilityTask_PlayMontageProAdvancedAndWait* CreatePlayMontageProAdvancedAndWaitProxy(
+		UPMPGameplayAbility* OwningAbility,
+		FName TaskInstanceName,
+		FGameplayTagContainer EventTags,
+		FMontageToPlay MontageToPlay,
+		bool bDrivenMontagesMatchDriverDuration = true,
+		float Rate = 1.f,
+		FName StartSection = NAME_None,
+		FProNotifyParams ProNotifyParams = FProNotifyParams(),
+		bool bOverrideBlendIn = false,
+		FMontageBlendSettings BlendInOverride = FMontageBlendSettings(),
+		bool bStopWhenAbilityEnds = true,
+		float AnimRootMotionTranslationScale = 1.f,
+		float StartTimeSeconds = 0.f,
+		bool bAllowInterruptAfterBlendOut = false,
+		float OverrideBlendOutTimeOnCancelAbility = -1.f,
+		float OverrideBlendOutTimeOnEndAbility = -1.f);
 
 	virtual void Activate() override;
 
+	void PlayDrivenMontageForMesh(float Duration, const FDrivenMontagePair& Montage, bool bReplicate) const;
+	
+	UPMPAbilitySystemComponent* GetASC() const;
+	
 	/** Called when the ability is asked to cancel from an outside node. What this means depends on the individual task. By default, this does nothing other than ending the task. */
 	virtual void ExternalCancel() override;
 
@@ -83,9 +121,9 @@ public:
 public:
 	// Begin IPlayMontageProInterface
 	virtual void BroadcastNotifyEvent(FAnimNotifyProEvent& Event) override { UPlayMontageProStatics::BroadcastNotifyEvent(Event, this); }
-	virtual void NotifyCallback(const FAnimNotifyProEvent& Event) override {}
-	virtual void NotifyBeginCallback(const FAnimNotifyProEvent& Event) override {}
-	virtual void NotifyEndCallback(const FAnimNotifyProEvent& Event) override {}
+	virtual void NotifyCallback(const FAnimNotifyProEvent& Event) override { OnNotify.Broadcast(Event); }
+	virtual void NotifyBeginCallback(const FAnimNotifyProEvent& Event) override { OnNotifyStateBegin.Broadcast(Event); }
+	virtual void NotifyEndCallback(const FAnimNotifyProEvent& Event) override { OnNotifyStateEnd.Broadcast(Event); }
 
 	virtual UAnimMontage* GetMontage() const override final { return IsValid(MontageToPlay) ? MontageToPlay : nullptr; }
 	virtual USkeletalMeshComponent* GetMesh() const override final
@@ -98,6 +136,8 @@ public:
 	// ~End IPlayMontageProInterface
 	
 protected:
+	void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
+	
 	UFUNCTION()
 	void OnMontageSectionChanged(UAnimMontage* InMontage, FName SectionName, bool bLooped);
 	
@@ -106,8 +146,18 @@ protected:
 
 	virtual void OnDestroy(bool AbilityEnded) override;
 
+	UFUNCTION(BlueprintCallable)
+	void MontageJumpToSection(FName SectionName, bool bOnlyDriver = false);
+
+	UFUNCTION(BlueprintCallable)
+	void MontageSetNextSection(FName FromSection, FName ToSection, bool bOnlyDriver = false);
+	
 	/** Checks if the ability is playing a montage and stops that montage, returns true if a montage was stopped, false if not. */
-	bool StopPlayingMontage();
+	UFUNCTION(BlueprintCallable)
+	bool StopPlayingMontage(float OverrideBlendOutTime = -1.f);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsPlayingMontage() const;
 
 	FOnMontageBlendedInEnded BlendedInDelegate;
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
@@ -115,8 +165,23 @@ protected:
 	FDelegateHandle InterruptedHandle;
 
 	UPROPERTY()
+	FGameplayTagContainer EventTags;
+	
+	UPROPERTY()
 	TObjectPtr<UAnimMontage> MontageToPlay;
+	
+	UPROPERTY()
+	FDrivenMontages DrivenMontages;
 
+	UPROPERTY()
+	bool bDrivenMontagesMatchDriverDuration;
+
+	UPROPERTY()
+	bool bOverrideBlendIn;
+
+	UPROPERTY()
+	FMontageBlendSettings BlendInOverride;
+	
 	UPROPERTY()
 	float Rate;
 
@@ -124,10 +189,7 @@ protected:
 	FName StartSection;
 
 	UPROPERTY()
-	bool bTriggerNotifiesBeforeStartTime;
-
-	UPROPERTY()
-	bool bEnableCustomTimeDilation;
+	FProNotifyParams ProNotifyParams;
 
 	UPROPERTY()
 	float AnimRootMotionTranslationScale;
@@ -142,12 +204,20 @@ protected:
 	bool bAllowInterruptAfterBlendOut;
 
 	UPROPERTY()
+	float OverrideBlendOutTimeOnCancelAbility;
+
+	UPROPERTY()
+	float OverrideBlendOutTimeOnEndAbility;
+
+	UPROPERTY()
 	uint32 NotifyId = 0;
 	
 	UPROPERTY()
 	TArray<FAnimNotifyProEvent> Notifies;
 	
 	FDelegateHandle TickPoseHandle;
+
+	FDelegateHandle EventHandle;
 	
 	float TimeDilation = 1.f;
 };

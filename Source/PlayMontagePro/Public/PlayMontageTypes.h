@@ -55,7 +55,7 @@ enum class EAnimNotifyProType : uint8
  * Used by PlayMontagePro to handle anim notifies and notify states.
  */
 USTRUCT()
-struct FAnimNotifyProEvent
+struct PLAYMONTAGEPRO_API FAnimNotifyProEvent
 {
 	GENERATED_BODY()
 	
@@ -139,5 +139,109 @@ struct FAnimNotifyProEvent
 	bool operator!=(const FAnimNotifyProEvent& Other) const
 	{
 		return !(*this == Other);
+	}
+};
+
+/**
+ * Parameters for Pro notifies, which trigger reliably unlike Epic's notify system.
+ * Contains options for enabling Pro notifies, triggering notifies before the starting position,
+ * and enabling custom time dilation for the montage.
+ */
+USTRUCT(BlueprintType)
+struct PLAYMONTAGEPRO_API FProNotifyParams
+{
+	GENERATED_BODY()
+
+	/** Whether to enable Pro notifies, which trigger reliably unlike Epic's notify system */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Notify)
+	bool bEnableProNotifies = true;
+
+	/** Whether to trigger notifies before the starting position */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Notify, meta=(EditCondition="bEnableProNotifies", EditConditionHides))
+	bool bTriggerNotifiesBeforeStartTime = false;
+
+	/** Whether to enable custom time dilation for the montage. Requires the mesh component to tick pose. May have additional performance overhead */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Notify, meta=(EditCondition="bEnableProNotifies", EditConditionHides))
+	bool bEnableCustomTimeDilation = false;
+};
+
+/**
+ * Pair of a montage and its associated skeletal mesh component.
+ * Used to store montages that are driven by a main montage, allowing for multiple montages to be played simultaneously.
+ */
+USTRUCT(BlueprintType)
+struct PLAYMONTAGEPRO_API FDrivenMontagePair
+{
+	GENERATED_BODY()
+
+	FDrivenMontagePair(UAnimMontage* InMontage = nullptr, USkeletalMeshComponent* InSkeletalMeshComponent = nullptr)
+		: Montage(InMontage)
+		, Mesh(InSkeletalMeshComponent)
+	{}
+
+	/** The montage to be played, can be replicated or local */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
+	TObjectPtr<UAnimMontage> Montage;
+
+	/** The skeletal mesh component associated with the montage, used to play the montage on the correct mesh */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
+	TObjectPtr<USkeletalMeshComponent> Mesh;
+};
+
+/**
+ * Collection of driven montages.
+ * Contains both driven montages that are replicated and those that are local to the client.
+ * Used by PlayMontagePro to handle multiple montages being played simultaneously.
+ */
+USTRUCT(BlueprintType)
+struct PLAYMONTAGEPRO_API FDrivenMontages
+{
+	GENERATED_BODY()
+
+	FDrivenMontages()
+	{}
+
+	/** Array of driven montages that are replicated to all clients */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
+	TArray<FDrivenMontagePair> DrivenMontages;
+
+	/** Array of driven montages that are local to the client and not replicated */
+	UPROPERTY(NotReplicated, EditAnywhere, BlueprintReadWrite, Category=Montage)
+	TArray<FDrivenMontagePair> LocalDrivenMontages;
+
+	void Empty()
+	{
+		DrivenMontages.Empty();
+		LocalDrivenMontages.Empty();
+	}
+	
+	void Reset()
+	{
+		DrivenMontages.Reset();
+		LocalDrivenMontages.Reset();
+	}
+};
+
+/**
+ * Parameters for a montage to be played.
+ * Contains the driver montage and any driven montages that should be played alongside it.
+ * Used by PlayMontagePro to handle montage playback and driven montages.
+ */
+USTRUCT(BlueprintType)
+struct PLAYMONTAGEPRO_API FMontageToPlay
+{
+	GENERATED_BODY()
+
+	/** The main driver montage that will be played */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
+	UAnimMontage* DriverMontage;
+
+	/** Collection of driven montages that will be played alongside the driver montage */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Montage)
+	FDrivenMontages DrivenMontages;
+
+	bool IsValid() const
+	{
+		return DriverMontage != nullptr || DrivenMontages.DrivenMontages.Num() > 0 || DrivenMontages.LocalDrivenMontages.Num() > 0;
 	}
 };

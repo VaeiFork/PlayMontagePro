@@ -20,6 +20,16 @@ class PLAYMONTAGEPRO_API UPlayMontageProStatics : public UBlueprintFunctionLibra
 
 public:
 	/**
+	 * Calculates the play rate required to scale a montage to a specific duration.
+	 * @param Montage The montage to calculate the play rate for.
+	 * @param Duration The target duration to scale the montage to.
+	 * @return The calculated play rate.
+	 */
+	UFUNCTION(BlueprintPure, Category=Animation)
+	static float GetMontagePlayRateScaledByDuration(const UAnimMontage* Montage, float Duration);
+	
+public:
+	/**
 	 * Gathers notifies from the montage and returns them in the Notifies array.
 	 * @param Montage The montage to gather notifies from.
 	 * @param NotifyId The current notify ID, which will be incremented for each notify found.

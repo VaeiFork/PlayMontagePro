@@ -13,6 +13,15 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageProStatics)
 
+float UPlayMontageProStatics::GetMontagePlayRateScaledByDuration(const UAnimMontage* Montage, float Duration)
+{
+	if (Montage && Duration > 0.f)
+	{
+		return Montage->GetPlayLength() / Duration;
+	}
+	return 1.f;
+}
+
 void UPlayMontageProStatics::GatherNotifies(UAnimMontage* Montage, uint32& NotifyId,
 	TArray<FAnimNotifyProEvent>& Notifies, const FName& Section, float StartPosition, float TimeDilation)
 {
