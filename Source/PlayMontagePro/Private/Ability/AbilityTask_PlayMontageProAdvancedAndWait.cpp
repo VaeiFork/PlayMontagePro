@@ -20,6 +20,9 @@ static FAutoConsoleVariableRef CVarPlayMontageProAdvancedAndWaitFireInterruptOnA
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
+	UPlayMontageProStatics::EnsureBroadcastNotifyEvents(
+		bInterrupted ? EAnimNotifyProEventType::OnInterrupted : EAnimNotifyProEventType::BlendOut, Notifies, this);
+	
 	const bool bPlayingThisMontage = (Montage == MontageToPlay) && Ability && Ability->GetCurrentMontage() == MontageToPlay;
 	if (bPlayingThisMontage)
 	{
@@ -44,8 +47,6 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageBlendingOut(UAnimMonta
 	{
 		if (bInterrupted)
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnInterrupted, Notifies, this);
-			
             bAllowInterruptAfterBlendOut = false;
 			OnInterrupted.Broadcast(FGameplayTag(), FGameplayEventData());
 
@@ -56,8 +57,6 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageBlendingOut(UAnimMonta
 		}
 		else
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::BlendOut, Notifies, this);
-			
 			OnBlendOut.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -73,12 +72,13 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageBlendedIn(UAnimMontage
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::OnGameplayAbilityCancelled()
 {
+	UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnInterrupted, Notifies, this);
+	
 	if (StopPlayingMontage(OverrideBlendOutTimeOnCancelAbility) || bAllowInterruptAfterBlendOut)
 	{
 		// Let the BP handle the interrupt as well
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnInterrupted, Notifies, this);
 			bAllowInterruptAfterBlendOut = false;
 			OnInterrupted.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
@@ -92,11 +92,13 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnGameplayAbilityCancelled()
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	UPlayMontageProStatics::EnsureBroadcastNotifyEvents(
+		bInterrupted ? EAnimNotifyProEventType::OnInterrupted : EAnimNotifyProEventType::OnCompleted, Notifies, this);
+	
 	if (!bInterrupted)
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCompleted, Notifies, this);
 			OnCompleted.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -104,7 +106,6 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnMontageEnded(UAnimMontage* Mo
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnInterrupted, Notifies, this);
 			OnInterrupted.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -264,9 +265,9 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::Activate()
 	if (!bPlayedMontage)
 	{
 		ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageProAdvancedAndWait called in Ability %s failed to play montage %s; Task Instance Name %s."), *Ability->GetName(), *GetNameSafe(MontageToPlay),*InstanceName.ToString());
+		UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCancelled, Notifies, this);
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCancelled, Notifies, this);
 			OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -291,9 +292,9 @@ UPMPAbilitySystemComponent* UAbilityTask_PlayMontageProAdvancedAndWait::GetASC()
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::ExternalCancel()
 {
+	UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCancelled, Notifies, this);
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCancelled, Notifies, this);
 		OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
 	}
 	Super::ExternalCancel();
