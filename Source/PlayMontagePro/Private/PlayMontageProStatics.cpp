@@ -211,7 +211,7 @@ void UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType
 		}
 		
 		// Ensure that the end state is reached if the start state notify was triggered
-		if (Event.bIsEndState && Event.NotifyStatePair && Event.NotifyStatePair->bHasBroadcast)
+		if (EventType != EAnimNotifyProEventType::BlendOut && Event.bIsEndState && Event.NotifyStatePair && Event.NotifyStatePair->bHasBroadcast)
 		{
 			Interface->BroadcastNotifyEvent(Event);
 		}
