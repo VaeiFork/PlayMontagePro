@@ -359,6 +359,8 @@ void UAbilityTask_PlayMontageProAdvancedAndWait::OnTickPose(USkinnedMeshComponen
 
 void UAbilityTask_PlayMontageProAdvancedAndWait::OnDestroy(bool AbilityEnded)
 {
+	UPlayMontageProStatics::EnsureBroadcastNotifyEvents(EAnimNotifyProEventType::OnCompleted, Notifies, this);
+	
 	if (TickPoseHandle.IsValid() && GetMesh())
 	{
 		if (TickPoseHandle.IsValid() && GetMesh()->OnTickPose.IsBoundToObject(this))
