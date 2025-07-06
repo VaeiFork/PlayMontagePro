@@ -25,11 +25,5 @@
 			"Type": "UncookedOnly",
 			"LoadingPhase": "PreDefault"
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "GameplayAbilities",
-			"Enabled": true
-		}
 	]
 }
